@@ -2,17 +2,18 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Hash, Send, Plus, Smile, Gift } from 'lucide-react'
 import { useApp } from '@/contexts/AppContext'
-import { formatTime, formatDate } from '@/lib/utils'
+import { formatTime } from '@/lib/utils'
 import { Message } from '@/lib/types'
 
 const ChatArea = () => {
-  const { currentChannel, messages, currentUser } = useApp()
+  const { currentChannel, messages, currentUser, sendMessage } = useApp()
   const [inputValue, setInputValue] = useState('')
+  const [isSending, setIsSending] = useState(false)
 
   const channelMessages = messages.filter(m => m.channelId === currentChannel?.id)
 
   const MessageItem = ({ message }: { message: Message }) => {
-    const isOwn = message.author.id === currentUser.id
+    const isOwn = message.author.id === currentUser?.id
 
     return (
       <motion.div
@@ -48,11 +49,17 @@ const ChatArea = () => {
     )
   }
 
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      // TODO: Implement message sending
-      console.log('Sending message:', inputValue)
-      setInputValue('')
+  const handleSend = async () => {
+    if (inputValue.trim() && !isSending) {
+      setIsSending(true)
+      try {
+        await sendMessage(inputValue.trim())
+        setInputValue('')
+      } catch (error) {
+        console.error('Failed to send message:', error)
+      } finally {
+        setIsSending(false)
+      }
     }
   }
 
@@ -152,7 +159,7 @@ const ChatArea = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleSend}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() || isSending}
               className="p-1.5 rounded bg-discord-blue hover:bg-discord-blue/80 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="w-5 h-5" />

@@ -18,6 +18,8 @@ export interface Message {
   author: User
   timestamp: Date
   channelId: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface User {
