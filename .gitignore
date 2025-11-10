@@ -1,0 +1,67 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.env
+.env.*
+# local environment
+.env.local
+.vite/
+# system files
+.DS_Store
+Thumbs.db
+# test output
+coverage/
+# dependency directory
+node_modules/
+# production build output
+dist/
+dist-ssr/
+# log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+# IDE/editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+# misc
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+# optional lockfiles
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+# local history, backups
+*.bak
+*.tmp
+# others (if needed for this project)
+# Put here files to ignore specific for your stack (add if needed)
