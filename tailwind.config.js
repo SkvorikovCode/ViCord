@@ -12,11 +12,14 @@ export default {
           darker: '#111214',
           gray: '#2b2d31',
           lightgray: '#313338',
+          mid: '#383a40',
           blue: '#5865f2',
+          blurple: '#5865f2',
           green: '#23a559',
           red: '#f23f43',
           text: '#dbdee1',
           textmuted: '#949ba4',
+          link: '#00a8fc',
         }
       },
       animation: {
@@ -35,6 +38,8 @@ export default {
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }
 

@@ -20,6 +20,7 @@ interface AppContextType {
   currentUser: User | null
   setCurrentUser: (user: User | null) => void
   isAuthenticated: boolean
+  setIsAuthenticated: (isAuthenticated: boolean) => void
   isLoading: boolean
   sendMessage: (content: string) => Promise<void>
   loadServers: () => Promise<void>
@@ -220,6 +221,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     currentUser,
     setCurrentUser,
     isAuthenticated,
+    setIsAuthenticated,
     isLoading,
     sendMessage,
     loadServers,
