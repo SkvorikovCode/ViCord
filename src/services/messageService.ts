@@ -16,8 +16,21 @@ export const messageService = {
     return response.data.data
   },
 
-  async sendMessage(channelId: string, content: string): Promise<Message> {
-    const response = await api.post(`/messages/channel/${channelId}`, { content })
+  async sendMessage(channelId: string, content: string, files?: File[]): Promise<Message> {
+    const formData = new FormData()
+    formData.append('content', content)
+
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        formData.append('files', file)
+      })
+    }
+
+    const response = await api.post(`/messages/channel/${channelId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
     return response.data.data
   },
 

@@ -12,6 +12,13 @@ export interface Channel {
   serverId: string
 }
 
+export interface MessageAttachment {
+  filename: string
+  url: string
+  type: 'image' | 'video' | 'audio' | 'pdf' | 'document' | 'archive' | 'text' | 'other'
+  size: number
+}
+
 export interface Message {
   id: string
   content: string
@@ -20,6 +27,7 @@ export interface Message {
   channelId: string
   createdAt?: string
   updatedAt?: string
+  attachments?: MessageAttachment[]
 }
 
 export interface User {

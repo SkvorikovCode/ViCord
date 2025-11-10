@@ -45,7 +45,7 @@ const Register = () => {
     setIsLoading(true)
 
     try {
-      await authService.register(email, username, password)
+      await authService.register({ email, username, password })
       
       // Show success and redirect to login
       navigate('/login', { 

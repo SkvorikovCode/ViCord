@@ -22,7 +22,7 @@ interface AppContextType {
   isAuthenticated: boolean
   setIsAuthenticated: (isAuthenticated: boolean) => void
   isLoading: boolean
-  sendMessage: (content: string) => Promise<void>
+  sendMessage: (content: string, files?: File[]) => Promise<void>
   loadServers: () => Promise<void>
   loadChannels: (serverId: string) => Promise<void>
   loadMessages: (channelId: string) => Promise<void>
@@ -133,11 +133,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const fetchedMessages = await messageService.getChannelMessages(channelId)
       
-      // Convert timestamp strings to Date objects
-      const messagesWithDates = fetchedMessages.map((msg: any) => ({
-        ...msg,
-        timestamp: new Date(msg.createdAt || msg.timestamp),
-      }))
+      // Convert timestamp strings to Date objects and parse attachments
+      const messagesWithDates = fetchedMessages.map((msg: any) => {
+        let attachments = msg.attachments
+        if (typeof attachments === 'string') {
+          try {
+            attachments = JSON.parse(attachments)
+          } catch (e) {
+            console.error('Failed to parse attachments:', e)
+            attachments = undefined
+          }
+        }
+        
+        return {
+          ...msg,
+          timestamp: new Date(msg.createdAt || msg.timestamp),
+          attachments,
+        }
+      })
       
       setMessages(messagesWithDates)
     } catch (error) {
@@ -149,23 +162,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     const handleNewMessage = (message: any) => {
       if (message.channelId === currentChannel?.id) {
+        let attachments = message.attachments
+        if (typeof attachments === 'string') {
+          try {
+            attachments = JSON.parse(attachments)
+          } catch (e) {
+            console.error('Failed to parse attachments:', e)
+            attachments = undefined
+          }
+        }
+        
         setMessages((prev) => [
           ...prev,
           {
             ...message,
             timestamp: new Date(message.createdAt || message.timestamp),
+            attachments,
           },
         ])
       }
     }
 
     const handleMessageUpdate = (message: any) => {
+      let attachments = message.attachments
+      if (typeof attachments === 'string') {
+        try {
+          attachments = JSON.parse(attachments)
+        } catch (e) {
+          console.error('Failed to parse attachments:', e)
+          attachments = undefined
+        }
+      }
+      
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === message.id
             ? {
                 ...message,
                 timestamp: new Date(message.createdAt || message.timestamp),
+                attachments,
               }
             : msg
         )
@@ -188,18 +223,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [currentChannel])
 
   // Send message
-  const sendMessage = async (content: string) => {
+  const sendMessage = async (content: string, files?: File[]) => {
     if (!currentChannel) {
       throw new Error('No channel selected')
     }
 
     try {
-      const message = await messageService.sendMessage(currentChannel.id, content)
+      const message = await messageService.sendMessage(currentChannel.id, content, files)
+      
+      // Parse attachments if they're a string (from backend)
+      let parsedMessage = { ...message }
+      if (typeof message.attachments === 'string') {
+        try {
+          parsedMessage.attachments = JSON.parse(message.attachments)
+        } catch (e) {
+          console.error('Failed to parse attachments:', e)
+        }
+      }
       
       // Broadcast via socket
       socketService.sendMessage(currentChannel.id, {
-        ...message,
-        timestamp: new Date(message.createdAt || message.timestamp),
+        ...parsedMessage,
+        timestamp: new Date(parsedMessage.createdAt || parsedMessage.timestamp),
       } as Message)
     } catch (error) {
       console.error('Failed to send message:', error)

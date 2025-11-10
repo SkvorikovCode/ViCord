@@ -52,7 +52,12 @@ export const getChannelMessages = async (
   return messages.reverse()
 }
 
-export const createMessage = async (channelId: string, userId: string, content: string) => {
+export const createMessage = async (
+  channelId: string,
+  userId: string,
+  content: string,
+  attachments?: Array<{ filename: string; url: string; type: string; size: number }>
+) => {
   const channel = await prisma.channel.findUnique({
     where: { id: channelId },
   })
@@ -80,6 +85,7 @@ export const createMessage = async (channelId: string, userId: string, content: 
       content,
       authorId: userId,
       channelId,
+      attachments: attachments ? JSON.stringify(attachments) : null,
     },
     include: {
       author: {

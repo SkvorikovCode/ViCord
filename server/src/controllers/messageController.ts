@@ -2,6 +2,7 @@ import { Response } from 'express'
 import { AuthRequest } from '../middleware/auth.js'
 import * as messageService from '../services/messageService.js'
 import { sendSuccess, sendError, sendCreated, sendNotFound } from '../utils/response.js'
+import { getFileCategory } from '../middleware/upload.js'
 
 export const getChannelMessages = async (req: AuthRequest, res: Response) => {
   try {
@@ -39,11 +40,29 @@ export const createMessage = async (req: AuthRequest, res: Response) => {
       return sendError(res, 'User not authenticated', 401)
     }
 
-    if (!content || content.trim().length === 0) {
-      return sendError(res, 'Message content is required')
+    // Check if at least content or files are provided
+    const files = req.files as Express.Multer.File[]
+    if ((!content || content.trim().length === 0) && (!files || files.length === 0)) {
+      return sendError(res, 'Message content or attachments are required')
     }
 
-    const message = await messageService.createMessage(channelId, userId, content)
+    // Process file attachments
+    let attachments: Array<{ filename: string; url: string; type: string; size: number }> | undefined
+    if (files && files.length > 0) {
+      attachments = files.map((file) => ({
+        filename: file.originalname,
+        url: `/uploads/${file.filename}`,
+        type: getFileCategory(file.mimetype),
+        size: file.size,
+      }))
+    }
+
+    const message = await messageService.createMessage(
+      channelId,
+      userId,
+      content || '',
+      attachments
+    )
 
     return sendCreated(res, message, 'Message sent successfully')
   } catch (error: any) {

@@ -21,7 +21,7 @@ const Login = () => {
     setIsLoading(true)
 
     try {
-      const { user } = await authService.login(email, password)
+      const { user } = await authService.login({ email, password })
       setCurrentUser(user)
       setIsAuthenticated(true)
       navigate('/app')

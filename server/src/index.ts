@@ -6,6 +6,8 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
 import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
 import serverRoutes from './routes/servers.js'
 import channelRoutes from './routes/channels.js'
@@ -13,6 +15,9 @@ import messageRoutes from './routes/messages.js'
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 import { verifyAccessToken } from './utils/jwt.js'
 import prisma from './utils/prisma.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // Load environment variables
 dotenv.config()
@@ -51,6 +56,9 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
 })
 app.use('/api/', limiter)
+
+// Serve static files (uploads)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 
 // Health check
 app.get('/health', (_req, res) => {
